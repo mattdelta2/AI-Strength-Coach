@@ -1,19 +1,119 @@
-# 🏋️ AI Strength Coach Agent
-A stateful AI Agent designed to act as an autonomous personal trainer. It doesn't just generate text; it **reasons** through your strength history to provide optimal weights and progressive overload.
+# 🏋️ AI Strength Coach Agent  
+*Your autonomous personal trainer powered by Groq.*
 
----<img width="3840" height="1980" alt="AI_Agent_Image" src="https://github.com/user-attachments/assets/c2912936-f409-4364-8298-015e8d5c893e" />
-## 🌟 Key Features- **Conversational Planning**: Uses Groq (Llama 3.3) to translate natural language requests into structured workouts.- **Intelligent Weight Estimation**: Calibrates intensity for new exercises based on the user's "Big 3" (Squat, Bench, Deadlift) ratios.- **Silent Substitution**: Automatically swaps machine-based movements for free-weight alternatives when requested, without breaking context.- **Automated Logging**: Uses RegEx to parse hidden metadata in AI responses, dynamically generating sidebar logging forms.- **Persistent Memory**: Stores strength history in **Supabase (Postgres)** to ensure workouts evolve over time.
-## 🛠️ Tech Stack- **LLM Engine**: Groq (Llama 3.3-70B)- **Database**: Supabase (PostgreSQL)- **Frontend**: Streamlit- **Logic**: Python (Native SDKs + Regex)
-## 🧠 The Agentic LoopThe agent follows a **Plan -> Execute -> Analyze -> Update** cycle:1. **Plan**: AI retrieves exercises from the DB and estimates weights based on historical data.2. **Execute**: User performs the session; UI provides interactive logging cards.3. **Analyze**: AI evaluates reps/weight performed against targets via a performance node.4. **Update**: Database is updated with new "Working Weights" for the next session.
-## ⚙️ Setup1. **Clone the repo.**
-2. **Install dependencies**: `pip install -r requirements.txt`3. **Initialize Database**: Run the provided SQL schema in your Supabase SQL Editor.
-4. **Configure Secrets**: Add `SUPABASE_URL`, `SUPABASE_KEY`, and `GROQ_API_KEY` to a `.env` file.
-5. **Run the app**: `streamlit run app.py`
-## 📜 SQL Schema```sql
-CREATE TABLE exercises (id UUID PRIMARY KEY, name TEXT, category TEXT, target_muscle TEXT);
-CREATE TABLE user_progress (exercise_name TEXT UNIQUE, current_weight FLOAT, target_reps INTEGER);
+`https://github.com/user-attachments/assets/c2912936-f409-4364-8298-015e8d5c893e`  
+*Interactive logging cards in Streamlit UI.*
 
+---
 
+## 🌟 Features  
+- **Plans workouts conversationally**: Translates natural language into structured sessions.  
+- **Estimates weights intelligently**: Calibrates intensity using “Big 3” (Squat, Bench, Deadlift) ratios.  
+- **Substitutes seamlessly**: Swaps machine movements for free‑weight alternatives without breaking context.  
+- **Logs sessions automatically**: Parses hidden metadata with RegEx to generate sidebar logging forms.  
+- **Learns persistently**: Stores strength history in **Supabase (Postgres)** to evolve workouts over time.  
 
-**Medical Disclaimer:**
-This AI agent provides general fitness information and is not a substitute for professional medical advice. Always consult with a healthcare provider before starting a new program. Verify that all suggested weights and movements are safe for your level.
+---
+
+## 🛠️ Tech Stack  
+- **LLM Engine**: Groq (Llama 3.3‑70B)  
+- **Database**: Supabase (PostgreSQL)  
+- **Frontend**: Streamlit  
+- **Logic**: Python (SDKs + Regex)  
+
+---
+
+## 🧠 Agentic Loop  
+The agent follows a **Plan → Execute → Analyze → Update** cycle:  
+1. **Plan**: Retrieves exercises and estimates weights from history.  
+2. **Execute**: User performs session; UI provides interactive logging cards.  
+3. **Analyze**: Evaluates reps/weights against targets.  
+4. **Update**: Database stores new “Working Weights” for next session.  
+
+---
+
+## ⚙️ Quick Start  
+```bash
+# 1. Clone the repo
+git clone <your-repo-url>
+cd ai-strength-coach
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Initialize database
+# Run schema.sql in Supabase SQL Editor
+
+# 4. Configure secrets
+# Add to .env
+SUPABASE_URL=your_url
+SUPABASE_KEY=your_key
+GROQ_API_KEY=your_key
+
+# 5. Run the app
+streamlit run app.py
+```
+
+---
+
+## 📂 Example `.env`  
+```env
+SUPABASE_URL=https://xyzcompany.supabase.co
+SUPABASE_KEY=your-service-role-key
+GROQ_API_KEY=your-groq-key
+```
+
+---
+
+## 📜 Database Schema  
+```sql
+CREATE TABLE exercises (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  category TEXT,
+  target_muscle TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  username TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE user_progress (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  exercise_id UUID REFERENCES exercises(id),
+  current_weight FLOAT,
+  target_reps INTEGER,
+  recorded_at TIMESTAMP DEFAULT now(),
+  UNIQUE(user_id, exercise_id)
+);
+```
+
+---
+
+## 🔒 Security & Privacy  
+- Never commit secrets (`SUPABASE_KEY`, `GROQ_API_KEY`).  
+- Use role‑based Supabase keys with least privilege.  
+- Data stored only for workout history.  
+
+---
+
+## 📜 Medical Disclaimer  
+This AI agent provides general fitness information and is **not** a substitute for professional medical advice. Always consult a healthcare provider before starting a new program. Verify that suggested weights and movements are safe for your level.  
+
+---
+
+## 🤝 Contributing  
+Pull requests welcome!  
+
+---
+
+## 📄 License  
+MIT License — free to use and modify.  
+
+---
+
+👉 This version is copy‑ready for your repo. Would you like me to also draft a **GitHub Actions CI workflow** (lint + test + badge) so your README can show build status at the top?
