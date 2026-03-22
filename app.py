@@ -119,8 +119,10 @@ def main():
             with st.spinner("Coach is thinking..."):
                 full_response = generate_workout_plan(prompt)
 
-                # 1. STRIP the hidden technical tags so the user doesn't see them
-                clean_display = re.sub(r"<!--.*?-->", "", full_response).strip()
+                # 1. STRIP the hidden technical tags so the user doesn't 
+                # see them
+                clean_display = re.sub(
+                    r"<!--.*?-->", "", full_response).strip()
                 # Also remove raw EXERCISES text if AI forgot the comment tags
                 clean_display = re.sub(
                     r"EXERCISES:.*", "", clean_display, flags=re.IGNORECASE
