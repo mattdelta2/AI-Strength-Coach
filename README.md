@@ -1,7 +1,8 @@
 # 🏋️ AI Strength Coach Agent  
 *Your autonomous personal trainer powered by Groq.*
 
-`https://github.com/user-attachments/assets/c2912936-f409-4364-8298-015e8d5c893e`  
+<img width="3840" height="1980" alt="AI_Agent_Image" src="https://github.com/user-attachments/assets/3838538c-eea5-48e2-a72c-53d2a0abdded" />
+
 *Interactive logging cards in Streamlit UI.*
 
 ---
