@@ -1,6 +1,3 @@
-This is a strong, clean README that clearly outlines the project. To make it truly "Senior Portfolio" grade, we should add the Advanced Logic we built at the end (the Hidden Metadata and the "Big 3" Scaling). These are the parts that prove you aren't just using a chatbot, but building an actual intelligent system.
-Here is an updated version you can copy and paste:
-
 # 🏋️ AI Strength Coach Agent
 A stateful AI Agent designed to act as an autonomous personal trainer. It doesn't just generate text; it **reasons** through your strength history to provide optimal weights and progressive overload.
 
