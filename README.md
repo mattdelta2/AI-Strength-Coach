@@ -103,7 +103,7 @@ CREATE TABLE user_progress (
 ---
 
 ## 📜 Medical Disclaimer  
-This AI agent provides general fitness information and is **not** a substitute for professional medical advice. Always consult a healthcare provider before starting a new program. Verify that suggested weights and movements are safe for your level.  
+This AI agent provides general fitness information for educational purposes only and is not a substitute for professional medical advice. Always consult with a healthcare provider before starting a new exercise program. Use proper form to avoid injury and verify that suggested weights and movements are appropriate for your level. 
 
 ---
 
