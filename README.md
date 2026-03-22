@@ -117,4 +117,3 @@ MIT License — free to use and modify.
 
 ---
 
-👉 This version is copy‑ready for your repo. Would you like me to also draft a **GitHub Actions CI workflow** (lint + test + badge) so your README can show build status at the top?
