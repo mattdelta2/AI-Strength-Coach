@@ -1,0 +1,20 @@
+# 1. API Keys and Secrets (CRITICAL)
+.env
+
+# 2. Virtual Environment (Avoids uploading 500MB of library files)
+venv/
+env/
+ENV/
+
+# 3. Python Cache (Speeds up local runs but clutters GitHub)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 4. OS-specific files
+.DS_Store
+Thumbs.db
+
+# 5. Streamlit specific
+.streamlit/config.toml
