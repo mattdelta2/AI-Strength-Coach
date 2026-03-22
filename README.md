@@ -1,32 +1,35 @@
-# AI Strength Coach Agent
+# 🏋️ AI Strength Coach Agent
 
-An autonomous workout agent that generates personalized training sessions and 
-dynamically adjusts weights based on user performance.
+A stateful AI Agent designed to act as an autonomous personal trainer. It doesn't just generate text; it **reasons** through your strength history to provide optimal weights and progressive overload.
 
-## Features
-- **Intelligent Workout Generation**: Pulls from a Supabase PostgreSQL library 
-  to build balanced Upper/Lower/Full-body sessions.
-- **Autonomous Progression**: Uses Llama 3.3 (via Groq) to analyze rep counts 
-  and automatically calculate progressive overload or deloading.
-- **Persistent Memory**: Stores strength history in Supabase to ensure 
-  workouts evolve over time.
-- **Clean Code**: Fully PEP 8 / Flake8 compliant architecture.
+## 🌟 Key Features
+- **Conversational Planning**: Uses Groq (Llama 3.3) to translate natural language requests into structured workouts.
+- **Intelligent Weight Estimation**: Calibrates intensity for new exercises based on the user's "Big 3" (Squat, Bench, Deadlift) ratios.
+- **Silent Substitution**: Automatically swaps machine-based movements for free-weight alternatives when requested, without breaking context.
+- **Automated Logging**: Uses RegEx to parse hidden metadata in AI responses, dynamically generating sidebar logging forms.
+- **Persistent Memory**: Stores strength history in **Supabase (Postgres)** to ensure workouts evolve over time.
 
-## Tech Stack
-- **AI Engine**: Groq (Llama 3.3-70B)
+## 🛠️ Tech Stack
+- **LLM Engine**: Groq (Llama 3.3-70B)
 - **Database**: Supabase (PostgreSQL)
 - **Frontend**: Streamlit
-- **Logic**: Python (Native SDKs)
+- **Logic**: Python (Native SDKs + Regex)
 
-## Setup
-1. Clone the repo.
-2. Install dependencies: `pip install -r requirements.txt`
-3. Add your `SUPABASE_URL`, `SUPABASE_KEY`, and `GROQ_API_KEY` to a `.env` file.
-4. Run the app: `streamlit run app.py`
-
-## The Agentic Loop
+## 🧠 The Agentic Loop
 The agent follows a **Plan -> Execute -> Analyze -> Update** cycle:
-1. **Plan**: Selects exercises based on category.
-2. **Execute**: User performs the workout.
-3. **Analyze**: AI evaluates performance vs. targets.
+1. **Plan**: AI retrieves exercises from the DB and estimates weights based on historical data.
+2. **Execute**: User performs the session; UI provides interactive logging cards.
+3. **Analyze**: AI evaluates reps/weight performed against targets via a performance node.
 4. **Update**: Database is updated with new "Working Weights" for the next session.
+
+## ⚙️ Setup
+1. **Clone the repo.**
+2. **Install dependencies**: `pip install -r requirements.txt`
+3. **Initialize Database**: Run the provided SQL schema in your Supabase SQL Editor.
+4. **Configure Secrets**: Add `SUPABASE_URL`, `SUPABASE_KEY`, and `GROQ_API_KEY` to a `.env` file.
+5. **Run the app**: `streamlit run app.py`
+
+## 📜 SQL Schema
+```sql
+CREATE TABLE exercises (id UUID PRIMARY KEY, name TEXT, category TEXT, target_muscle TEXT);
+CREATE TABLE user_progress (exercise_name TEXT UNIQUE, current_weight FLOAT, target_reps INTEGER);
