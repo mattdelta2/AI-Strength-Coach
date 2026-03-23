@@ -25,11 +25,11 @@
 ---
 
 ## 🧠 Agentic Loop  
-The agent follows a **Plan → Execute → Analyze → Update** cycle:  
+The agent follows a **Plan → Execute → Analyse → Update** cycle:  
 1. **Plan**: Retrieves exercises and estimates weights from history.  
 2. **Execute**: User performs session; UI provides interactive logging cards.  
-3. **Analyze**: Evaluates reps/weights against targets.  
-4. **Update**: Database stores new “Working Weights” for next session.  
+3. **Analyse**: Evaluates reps/weights against targets.  
+4. **Update**: Database stores new “Working Weights” for next session.   
 
 ---
 
@@ -103,7 +103,8 @@ CREATE TABLE user_progress (
 ---
 
 ## 📜 Medical Disclaimer  
-This AI agent provides general fitness information for educational purposes only and is not a substitute for professional medical advice. Always consult with a healthcare provider before starting a new exercise program. Use proper form to avoid injury and verify that suggested weights and movements are appropriate for your level. 
+This AI agent provides general fitness information for educational purposes only and is not a substitute for professional medical advice. Always consult with a healthcare provider before starting a new exercise programme. Use proper form to avoid injury and verify that suggested weights and movements are appropriate for your level. 
+
 
 ---
 
@@ -112,8 +113,9 @@ Pull requests welcome!
 
 ---
 
-## 📄 License  
-MIT License — free to use and modify.  
+## 📄 Licence  
+MIT Licence — free to use and modify.  
+
 
 ---
 
