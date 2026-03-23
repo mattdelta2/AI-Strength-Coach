@@ -82,7 +82,7 @@ GROQ_API_KEY=your-groq-key
 
 ---
 
-🔑 Getting Your Groq API Key
+## 🔑 Getting Your Groq API Key
 To run this project, you’ll need a Groq API key.
 You can create a free account and generate an API key here: https://console.groq.com.
 
