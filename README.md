@@ -33,6 +33,13 @@ The agent follows a **Plan → Execute → Analyse → Update** cycle:
 
 ---
 
+## ⚠️ Environment Requirements
+This project was tested and runs reliably on **Python 3.11.9**.  
+Due to NumPy compatibility issues, earlier or later versions of Python may not work correctly.  
+Make sure to install Python 3.11.9 before setting up the environment.
+
+---
+
 ## ⚙️ Quick Start  
 ```bash
 # 1. Clone the repo
