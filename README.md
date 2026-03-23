@@ -88,6 +88,21 @@ You can create a free account and generate an API key here: https://console.groq
 
 ---
 
+## 🔑 Getting Your Supabase URL and Key
+You’ll also need a Supabase project to store workout history.
+
+Sign up at https://supabase.com and create a new project.
+
+In your project dashboard, copy the Project URL — this is your SUPABASE_URL.
+
+Go to Project Settings → API and copy the Service Role Key — this is your SUPABASE_KEY.
+
+⚠️ Important: Use the service role key (not the anon key) for full read/write access.
+
+Add both values to your .env file as shown above.
+
+---
+
 ## 📜 Database Schema  
 ```sql
 CREATE TABLE exercises (
