@@ -41,9 +41,92 @@ The agent follows a **Plan → Execute → Analyse → Update** cycle:
 
 ## ⚠️ Environment Requirements
 This project was tested and runs reliably on **Python 3.11.9**.  
-Due to NumPy compatibility issues, earlier or later versions of Python may not work correctly.  
-Make sure to install Python 3.11.9 before setting up the environment.  
-**Recommended tools**: `pyenv` or `conda` to manage Python versions and virtual environments.
+Due to NumPy compatibility and binary wheel considerations, other Python versions may cause installation or runtime issues.  
+**Recommended tools**: `pyenv` (macOS/Linux/WSL) or `conda` (cross‑platform) to manage Python versions and virtual environments. You can also use the system Python (`py` / `python`) if you prefer — see the **Using system Python** subsection below.
+
+### Environment Setup (macOS, Linux, Windows)
+Choose the workflow that best matches your platform and preferences.
+
+#### macOS and Linux (recommended: pyenv)
+```bash
+# Install pyenv (example installer)
+curl https://pyenv.run | bash
+# Follow installer output to add pyenv to your shell (~/.bashrc, ~/.zshrc)
+# Restart shell or source your profile, then:
+pyenv install 3.11.9
+pyenv local 3.11.9
+
+# Create and activate a venv
+python -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+```
+**Notes**: On Linux you may need system build deps (Ubuntu example in Quick Start).
+
+#### Windows (three options)
+**Option A — WSL + pyenv (recommended for parity)**  
+1. Enable WSL and install a Linux distro (Ubuntu) from the Microsoft Store.  
+2. Open the distro terminal and follow the macOS/Linux pyenv steps above.  
+
+**Option B — Conda (native Windows, easiest for NumPy)**  
+```powershell
+# With Miniconda or Anaconda installed
+conda create -n coach python=3.11.9
+conda activate coach
+pip install -r requirements.txt
+```
+
+**Option C — pyenv-win (native alternative)**  
+```powershell
+# Install via Scoop (recommended)
+scoop install pyenv-win
+
+# Then
+pyenv install 3.11.9
+pyenv local 3.11.9
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+**Caveat**: pyenv-win differs from Unix pyenv; prefer WSL or Conda for full parity.
+
+#### Conda (cross platform)
+```bash
+conda create -n coach python=3.11.9
+conda activate coach
+pip install -r requirements.txt
+```
+Conda provides prebuilt binary packages for NumPy and other scientific libs, avoiding compilation.
+
+#### Using system Python (py / python)
+If you prefer not to install pyenv or conda, you can use the system Python or the Windows `py` launcher. This is fine for single‑machine development but carries reproducibility caveats (contributors or CI may have different system Pythons).
+
+**macOS / Linux (system python)**
+```bash
+# Ensure your system python is 3.11.9 (or use a distro package)
+python3 --version   # should show 3.11.9
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+```
+
+**Windows (py launcher)**
+```powershell
+# Use the py launcher to request a specific minor version if installed
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+```
+
+**Caveats when using system Python**
+- You must ensure the exact Python version (3.11.9) is installed on each machine to avoid binary wheel/ABI mismatches.  
+- System Python may be managed by OS package managers; upgrading or changing it can affect other system tools.  
+- For reproducibility across contributors and CI, pinning the interpreter with `pyenv`, `pyenv-win`, or `conda` is recommended. Use system Python when you control the machine image or for quick local testing.
 
 ---
 
@@ -53,16 +136,17 @@ Make sure to install Python 3.11.9 before setting up the environment.
 git clone https://github.com/mattdelta2/AI-Strength-Coach.git
 cd AI-Strength-Coach
 
-# 2. Ensure correct Python version
-# Use pyenv or conda to install/use Python 3.11.9
+# 2. Ensure correct Python version (see Environment Setup)
+# Example using pyenv:
 pyenv install 3.11.9
 pyenv local 3.11.9
 
 # 3. Create and activate a virtual environment
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # Windows PowerShell: .\.venv\Scripts\Activate.ps1
 
 # 4. Install dependencies
+pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 
 # 5. Initialize database
@@ -100,13 +184,13 @@ You’ll need a Supabase project to store workout history:
 1. Sign up at https://supabase.com and create a new project.  
 2. In the project dashboard copy the **Project URL** — this is your `SUPABASE_URL`.  
 3. Go to **Project Settings → API** and copy the **Service Role Key** — this is your `SUPABASE_KEY`.  
-   - **Important**: The service role key has elevated privileges. Use it only for local development or trusted server environments. For public or client‑side apps, use the anon key with appropriate RLS policies.  
+   - **Important**: The service role key has elevated privileges. Use it only for local development or trusted server environments. For public or client‑side apps, use the anon key with appropriate Row Level Security (RLS) policies.  
 4. Add both values to your `.env` as shown above.
 
 ---
 
 ## ✅ Setup Checklist
-- [ ] Install Python 3.11.9 (pyenv or conda recommended)  
+- [ ] Install Python 3.11.9 (pyenv, WSL+pyenv, pyenv-win, conda, or system Python)  
 - [ ] Create and activate a virtual environment  
 - [ ] `pip install -r requirements.txt`  
 - [ ] Create Supabase project and run `schema.sql`  
@@ -172,7 +256,7 @@ This AI agent provides general fitness information for educational purposes only
   Streamlit automatically reruns the script when state changes. If you see unexpected behaviour, clear session state (`🗑️ Clear Chat History` in the sidebar) or restart the app.
 
 - **NumPy / Binary Wheels**  
-  If `pip install` fails on NumPy, ensure your Python version is 3.11.9 and that you have a compatible pip/wheel environment. Installing from prebuilt wheels or using `pip install --upgrade pip setuptools wheel` can help.
+  If `pip install` fails on NumPy, ensure your Python version is 3.11.9 and that you have a compatible pip/wheel environment. Installing from prebuilt wheels or using `pip install --upgrade pip setuptools wheel` can help. On Windows prefer Conda for prebuilt binaries.
 
 ---
 
