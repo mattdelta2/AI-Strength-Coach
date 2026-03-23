@@ -39,19 +39,23 @@ The agent follows a **Plan → Execute → Analyse → Update** cycle:
 git clone <your-repo-url>
 cd ai-strength-coach
 
-# 2. Install dependencies
+# 2. Ensure correct Python version
+# This project requires Python 3.11.9 for NumPy compatibility.
+# Other versions may cause dependency errors.
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 3. Initialize database
+# 4. Initialize database
 # Run schema.sql in Supabase SQL Editor
 
-# 4. Configure secrets
+# 5. Configure secrets
 # Add to .env
 SUPABASE_URL=your_url
 SUPABASE_KEY=your_key
 GROQ_API_KEY=your_key
 
-# 5. Run the app
+# 6. Run the app
 streamlit run app.py
 ```
 
