@@ -51,7 +51,7 @@ def generate_workout_plan(user_input):
     return chat_completion.choices[0].message.content
 
 
-def analyze_performance(exercise, reps, target, weight):
+def analyse_performance(exercise, reps, target, weight):
     """AI determines the next weight based on progressive overload rules."""
     # clean the name before asking the AI to analyse it
     clean_name = exercise.strip().title()
