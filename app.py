@@ -77,10 +77,10 @@ def main():
                     )
 
                     if st.button(f"Submit {ex}", key=f"btn_{ex}"):
-                        from agent import analyze_performance
+                        from agent import analyse_performance
                         from database import update_weight
 
-                        new_w = analyze_performance(ex, reps, 10, weight)
+                        new_w = analyse_performance(ex, reps, 10, weight)
                         update_weight(ex, new_w)
 
                         if new_w > weight:
