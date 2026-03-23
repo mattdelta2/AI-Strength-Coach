@@ -5,6 +5,7 @@
 ![Streamlit](https://img.shields.io/badge/streamlit-1.x-brightgreen.svg)
 ![Supabase](https://img.shields.io/badge/supabase-postgres-green.svg)
 ![Groq](https://img.shields.io/badge/groq-llama3-orange.svg)
+![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
 <img width="3840" height="1980" alt="AI_Agent_Image" src="https://github.com/user-attachments/assets/3838538c-eea5-48e2-a72c-53d2a0abdded" />
 
@@ -41,33 +42,37 @@ The agent follows a **Plan → Execute → Analyse → Update** cycle:
 ## ⚠️ Environment Requirements
 This project was tested and runs reliably on **Python 3.11.9**.  
 Due to NumPy compatibility issues, earlier or later versions of Python may not work correctly.  
-Make sure to install Python 3.11.9 before setting up the environment.
+Make sure to install Python 3.11.9 before setting up the environment.  
+**Recommended tools**: `pyenv` or `conda` to manage Python versions and virtual environments.
 
 ---
 
 ## ⚙️ Quick Start  
 ```bash
 # 1. Clone the repo
-git clone <your-repo-url>
-cd ai-strength-coach
+git clone https://github.com/mattdelta2/AI-Strength-Coach.git
+cd AI-Strength-Coach
 
 # 2. Ensure correct Python version
-# This project requires Python 3.11.9 for NumPy compatibility.
-# Other versions may cause dependency errors.
+# Use pyenv or conda to install/use Python 3.11.9
+pyenv install 3.11.9
+pyenv local 3.11.9
 
-# 3. Install dependencies
+# 3. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# 4. Install dependencies
 pip install -r requirements.txt
 
-# 4. Initialize database
-# Run schema.sql in Supabase SQL Editor
+# 5. Initialize database
+# Run schema.sql in Supabase SQL Editor (see Getting Your Supabase URL and Key)
 
-# 5. Configure secrets
-# Add to .env
-SUPABASE_URL=your_url
-SUPABASE_KEY=your_key
-GROQ_API_KEY=your_key
+# 6. Configure secrets
+# Add to .env (see Getting Your Groq API Key and Getting Your Supabase URL and Key)
+# Example .env shown below
 
-# 6. Run the app
+# 7. Run the app
 streamlit run app.py
 ```
 
@@ -82,24 +87,31 @@ GROQ_API_KEY=your-groq-key
 
 ---
 
-## 🔑 Getting Your Groq API Key
-To run this project, you’ll need a Groq API key.
-You can create a free account and generate an API key here: https://console.groq.com.
+## 🔑 Getting Your Groq API Key  
+To run this project, you’ll need a Groq API key.  
+Create an account and generate an API key at: https://console.groq.com  
+Add the key to your `.env` as `GROQ_API_KEY`.
 
 ---
 
-## 🔑 Getting Your Supabase URL and Key
-You’ll also need a Supabase project to store workout history.
+## 🔑 Getting Your Supabase URL and Key  
+You’ll need a Supabase project to store workout history:
 
-Sign up at https://supabase.com and create a new project.
+1. Sign up at https://supabase.com and create a new project.  
+2. In the project dashboard copy the **Project URL** — this is your `SUPABASE_URL`.  
+3. Go to **Project Settings → API** and copy the **Service Role Key** — this is your `SUPABASE_KEY`.  
+   - **Important**: The service role key has elevated privileges. Use it only for local development or trusted server environments. For public or client‑side apps, use the anon key with appropriate RLS policies.  
+4. Add both values to your `.env` as shown above.
 
-In your project dashboard, copy the Project URL — this is your SUPABASE_URL.
+---
 
-Go to Project Settings → API and copy the Service Role Key — this is your SUPABASE_KEY.
-
-⚠️ Important: Use the service role key (not the anon key) for full read/write access.
-
-Add both values to your .env file as shown above.
+## ✅ Setup Checklist
+- [ ] Install Python 3.11.9 (pyenv or conda recommended)  
+- [ ] Create and activate a virtual environment  
+- [ ] `pip install -r requirements.txt`  
+- [ ] Create Supabase project and run `schema.sql`  
+- [ ] Add `SUPABASE_URL`, `SUPABASE_KEY`, `GROQ_API_KEY` to `.env`  
+- [ ] `streamlit run app.py`
 
 ---
 
@@ -133,9 +145,10 @@ CREATE TABLE user_progress (
 ---
 
 ## 🔒 Security & Privacy  
-- Never commit secrets (`SUPABASE_KEY`, `GROQ_API_KEY`).  
-- Use role‑based Supabase keys with least privilege.  
-- Data stored only for workout history.  
+- **Never commit secrets** (`SUPABASE_KEY`, `GROQ_API_KEY`, `.env`).  
+- Use role‑based Supabase keys with least privilege in production.  
+- For public deployments, enable Row Level Security and use anon keys with server‑side functions for sensitive operations.  
+- Data stored only for workout history.
 
 ---
 
@@ -146,28 +159,27 @@ This AI agent provides general fitness information for educational purposes only
 
 ## 🐛 Known Issues / Troubleshooting
 
-- **Python Version**:  
-  This project requires **Python 3.11.9** for NumPy compatibility.  
-  Other versions may cause dependency errors during installation.  
-  If you encounter issues, please install Python 3.11.9 and recreate your virtual environment.
+- **Python Version**  
+  This project requires **Python 3.11.9** for NumPy compatibility. Other versions may cause dependency errors. If you encounter issues, install Python 3.11.9 and recreate your virtual environment.
 
-- **Environment Variables**:  
-  Ensure your `.env` file is correctly configured with `SUPABASE_URL`, `SUPABASE_KEY`, and `GROQ_API_KEY`.  
-  Missing or incorrect values will prevent the app from connecting to Supabase or Groq.
+- **Environment Variables**  
+  Ensure your `.env` file is correctly configured with `SUPABASE_URL`, `SUPABASE_KEY`, and `GROQ_API_KEY`. Missing or incorrect values will prevent the app from connecting to Supabase or Groq.
 
-- **Streamlit Reruns**:  
-  Streamlit automatically reruns the script when state changes. If you see unexpected behaviour, clear session state (`🗑️ Clear Chat History` in the sidebar).
+- **Supabase Permissions**  
+  If you see permission errors when writing to the DB, verify you used the Service Role Key for local dev and that your tables and policies are set up correctly.
 
---- 
+- **Streamlit Reruns**  
+  Streamlit automatically reruns the script when state changes. If you see unexpected behaviour, clear session state (`🗑️ Clear Chat History` in the sidebar) or restart the app.
+
+- **NumPy / Binary Wheels**  
+  If `pip install` fails on NumPy, ensure your Python version is 3.11.9 and that you have a compatible pip/wheel environment. Installing from prebuilt wheels or using `pip install --upgrade pip setuptools wheel` can help.
+
+---
 
 ## 🤝 Contributing  
-Pull requests welcome!  
+Pull requests welcome! Please open issues for bugs or feature requests. If you submit a PR that requires new environment variables or schema changes, update this README accordingly.
 
 ---
 
 ## 📄 Licence  
-MIT Licence — free to use and modify.  
-
-
----
-
+MIT Licence — free to use and modify.
