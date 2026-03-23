@@ -121,8 +121,23 @@ CREATE TABLE user_progress (
 ## 📜 Medical Disclaimer  
 This AI agent provides general fitness information for educational purposes only and is not a substitute for professional medical advice. Always consult with a healthcare provider before starting a new exercise programme. Use proper form to avoid injury and verify that suggested weights and movements are appropriate for your level. 
 
-
 ---
+
+## 🐛 Known Issues / Troubleshooting
+
+- **Python Version**:  
+  This project requires **Python 3.11.9** for NumPy compatibility.  
+  Other versions may cause dependency errors during installation.  
+  If you encounter issues, please install Python 3.11.9 and recreate your virtual environment.
+
+- **Environment Variables**:  
+  Ensure your `.env` file is correctly configured with `SUPABASE_URL`, `SUPABASE_KEY`, and `GROQ_API_KEY`.  
+  Missing or incorrect values will prevent the app from connecting to Supabase or Groq.
+
+- **Streamlit Reruns**:  
+  Streamlit automatically reruns the script when state changes. If you see unexpected behaviour, clear session state (`🗑️ Clear Chat History` in the sidebar).
+
+--- 
 
 ## 🤝 Contributing  
 Pull requests welcome!  
