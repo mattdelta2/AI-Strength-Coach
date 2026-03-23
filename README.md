@@ -1,6 +1,11 @@
 # 🏋️ AI Strength Coach Agent  
 *Your autonomous personal trainer powered by Groq.*
 
+![Python](https://img.shields.io/badge/python-3.11.9-blue.svg)
+![Streamlit](https://img.shields.io/badge/streamlit-1.x-brightgreen.svg)
+![Supabase](https://img.shields.io/badge/supabase-postgres-green.svg)
+![Groq](https://img.shields.io/badge/groq-llama3-orange.svg)
+
 <img width="3840" height="1980" alt="AI_Agent_Image" src="https://github.com/user-attachments/assets/3838538c-eea5-48e2-a72c-53d2a0abdded" />
 
 *Interactive logging cards in Streamlit UI.*
