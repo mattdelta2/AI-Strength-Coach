@@ -26,11 +26,17 @@ def get_user_stats(exercise_name):
 
 
 def update_weight(exercise_name, new_weight):
-    """Update weight or create new record using on_conflict."""
+    """
+    Update weight with name sanitation to prevent bars.
+    Ensures exercise names map together
+    """
+    clean_name = exercise_name.strip().title()
+    if clean_name.endswith('s') and clean_name != "Bench Press":
+        clean_name = clean_name[:-1]
+
     table = supabase.table("user_progress")
-    # Adding on_conflict tells Supabase which column is the unique key
     table.upsert(
-        {"exercise_name": exercise_name, "current_weight": new_weight},
+        {"exercise_name": clean_name, "current_weight": new_weight},
         on_conflict="exercise_name"
     ).execute()
 
