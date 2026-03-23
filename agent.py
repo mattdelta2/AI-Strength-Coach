@@ -53,8 +53,10 @@ def generate_workout_plan(user_input):
 
 def analyze_performance(exercise, reps, target, weight):
     """AI determines the next weight based on progressive overload rules."""
+    # clean the name before asking the AI to analyse it
+    clean_name = exercise.strip().title()
     prompt = (
-        f"User did {reps} reps of {exercise}. Goal: {target} @ {weight}kg. "
+        f"User did {reps} reps of {clean_name}. Goal: {target} @ {weight}kg. "
         "Rule: If reps >= target, add 2.5. If less, stay same. "
         "Return ONLY the final number. No text or units."
     )
