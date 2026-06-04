@@ -147,6 +147,11 @@ def main():
             # Generate reply using the conversation-aware wrapper
             full_response = generate_reply(
                 prompt, st.session_state.get("messages", []))
+        except Exception as exc:
+            st.session_state.generating = False
+            placeholder.empty()
+            st.error(f"Coach encountered an error — please try again. ({exc})")
+            st.stop()
         finally:
             st.session_state.generating = False
             placeholder.empty()
