@@ -1,4 +1,5 @@
 # agent.py
+import logging
 import os
 import re
 from typing import List, Optional
@@ -144,9 +145,9 @@ def generate_reply(user_input: str,
     if _looks_like_workout_request(user_input):
         try:
             return generate_workout_plan(user_input)
-        except Exception:
-            # If the specialised generator fails, fall back to chat below
-            pass
+        except Exception as exc:
+            logging.warning("generate_workout_plan failed: %s", exc)
+            # Fall back to chat below
 
     history = history or []
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -162,11 +163,12 @@ def generate_reply(user_input: str,
         )
         assistant_text = resp.choices[0].message.content.strip()
         return assistant_text
-    except Exception:
-        # If the chat call fails, try the specialised workout generator
+    except Exception as exc:
+        logging.warning("generate_reply chat failed: %s", exc)
         try:
             return generate_workout_plan(user_input)
-        except Exception:
+        except Exception as exc2:
+            logging.warning("generate_workout_plan fallback failed: %s", exc2)
             return (
                 "Sorry, I had trouble thinking that through — try rephrasing "
                 "or try again in a moment."
