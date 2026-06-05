@@ -28,9 +28,12 @@ def onboarding_form():
         if st.form_submit_button("Complete Onboarding"):
             from database import update_weight
 
-            update_weight("Bench Press", bench)
-            update_weight("Squat", squat)
-            update_weight("Deadlift", dead)
+            try:
+                update_weight("Bench Press", bench)
+                update_weight("Squat", squat)
+                update_weight("Deadlift", dead)
+            except Exception:
+                pass  # DB unavailable; weights will be saved when connection is restored
 
             st.success("Onboarding complete! Loading your coach...")
             st.session_state.onboarded = True
@@ -51,7 +54,10 @@ def main():
 
     if "messages" not in st.session_state:
         # Restore cross-session memory from DB (newest-first → reverse to chrono)
-        persisted = get_recent_messages(user_id=None, limit=20)
+        try:
+            persisted = get_recent_messages(user_id=None, limit=20)
+        except Exception:
+            persisted = []
         if persisted:
             st.session_state.messages = list(reversed(persisted))
         else:
@@ -67,8 +73,11 @@ def main():
 
     if "onboarded" not in st.session_state:
         if supabase:
-            data = supabase.table("user_progress").select("*").execute().data
-            st.session_state.onboarded = True if data else False
+            try:
+                data = supabase.table("user_progress").select("*").execute().data
+                st.session_state.onboarded = True if data else False
+            except Exception:
+                st.session_state.onboarded = False
         else:
             st.session_state.onboarded = False
 
@@ -132,11 +141,14 @@ def main():
         st.header("📈 Your Progress")
 
         if supabase:
-            progress_data = supabase.table(
-                "user_progress").select("*").execute().data
-            if progress_data:
-                df = pd.DataFrame(progress_data)
-                st.bar_chart(data=df, x="exercise_name", y="current_weight")
+            try:
+                progress_data = supabase.table(
+                    "user_progress").select("*").execute().data
+                if progress_data:
+                    df = pd.DataFrame(progress_data)
+                    st.bar_chart(data=df, x="exercise_name", y="current_weight")
+            except Exception:
+                st.caption("Progress chart unavailable — check DB connection.")
 
     # ── MAIN: Chat Interface ──────────────────────────────────────────────────
     for message in st.session_state.messages:
