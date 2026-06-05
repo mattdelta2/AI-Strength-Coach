@@ -14,11 +14,14 @@ load_dotenv()
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-_WORKOUT_SCHEMA = (
-    '{"workout_title": "string", "notes": "string", '
-    '"exercises": [{"name": "string", "sets": integer, '
-    '"reps": "string", "weight_kg": float, "rest_seconds": integer}]}'
-)
+_WORKOUT_SCHEMA = """{
+  "workout_title": "45-Minute Upper Body Session",
+  "notes": "Rest 60-90 seconds between sets.",
+  "exercises": [
+    {"name": "Bench Press", "sets": 4, "reps": "8-10", "weight_kg": 80.0, "rest_seconds": 90},
+    {"name": "Cable Row",   "sets": 3, "reps": "10-12", "weight_kg": 55.0, "rest_seconds": 75}
+  ]
+}"""
 
 
 def generate_workout_plan(
@@ -65,7 +68,11 @@ def generate_workout_plan(
         "4. For bodyweight exercises set weight_kg to 0.0.\n"
         "5. Apply progressive overload relative to logged weights.\n"
         "6. Do NOT provide a multi-day split unless explicitly asked.\n"
-        f"7. Respond ONLY with a JSON object matching this schema:\n{_WORKOUT_SCHEMA}"
+        "7. You MUST use EXACTLY these JSON field names — no variations:\n"
+        '   Top level: "workout_title", "notes", "exercises"\n'
+        '   Each exercise: "name", "sets", "reps", "weight_kg", "rest_seconds"\n'
+        "   reps must be a string e.g. \"8-10\". weight_kg must be a number.\n"
+        f"8. Your entire response must be a single JSON object like this example:\n{_WORKOUT_SCHEMA}"
     )
 
     response = client.chat.completions.create(
@@ -90,11 +97,21 @@ def generate_workout_plan(
 
 
 def _format_workout_markdown(workout: dict) -> str:
-    """Convert a structured workout dict into a clean markdown table."""
+    """
+    Convert a structured workout dict into a clean markdown table.
+    Handles alternate field names the LLM may use despite instructions.
+    """
     lines = []
-    title    = workout.get("workout_title", "Your Workout")
-    notes    = workout.get("notes", "")
-    exercises = workout.get("exercises", [])
+
+    # Title — accept workout_title or title
+    title = workout.get("workout_title") or workout.get("title", "Your Workout")
+
+    # Notes — accept notes, warm_up, or description
+    notes = (workout.get("notes") or workout.get("warm_up")
+             or workout.get("description", ""))
+
+    # Exercise list — accept exercises or workout
+    exercises = workout.get("exercises") or workout.get("workout", [])
 
     lines.append(f"### {title}")
     if notes:
@@ -104,13 +121,27 @@ def _format_workout_markdown(workout: dict) -> str:
         lines.append("| Exercise | Sets | Reps | Weight | Rest |")
         lines.append("|---|---|---|---|---|")
         for ex in exercises:
-            name   = ex.get("name", "")
-            sets   = ex.get("sets", "")
-            reps   = ex.get("reps", "")
-            weight = ex.get("weight_kg", 0.0)
-            rest   = ex.get("rest_seconds", 60)
-            w_str  = f"{weight}kg" if weight else "Bodyweight"
+            # Name — accept name or exercise
+            name = ex.get("name") or ex.get("exercise", "")
+            sets = ex.get("sets", "")
+            reps = ex.get("reps") or ex.get("duration", "")
+            # Weight — accept weight_kg or weight (strip non-numeric if string)
+            raw_weight = ex.get("weight_kg") or ex.get("weight", 0.0)
+            if isinstance(raw_weight, str):
+                nums = re.findall(r"\d+\.?\d*", raw_weight)
+                weight = float(nums[0]) if nums else 0.0
+            else:
+                weight = float(raw_weight) if raw_weight else 0.0
+            rest = ex.get("rest_seconds", 60)
+            w_str = f"{weight}kg" if weight else "Bodyweight"
             lines.append(f"| {name} | {sets} | {reps} | {w_str} | {rest}s |")
+    else:
+        lines.append("_No exercises found in the response — try asking again._")
+
+    # Append cool_down note if present
+    cool_down = workout.get("cool_down", "")
+    if cool_down:
+        lines.append(f"\n_Cool-down: {cool_down}_")
 
     return "\n".join(lines)
 
