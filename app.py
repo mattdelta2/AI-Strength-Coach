@@ -163,7 +163,10 @@ def main():
 
         st.session_state.active_workout = []
         st.session_state.messages.append({"role": "user", "content": prompt})
-        save_message(user_id=None, role="user", content=prompt)
+        try:
+            save_message(user_id=None, role="user", content=prompt)
+        except Exception:
+            pass
 
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -196,7 +199,10 @@ def main():
 
         st.session_state.messages.append(
             {"role": "assistant", "content": display_text})
-        save_message(user_id=None, role="assistant", content=display_text)
+        try:
+            save_message(user_id=None, role="assistant", content=display_text)
+        except Exception:
+            pass
 
         with st.chat_message("assistant"):
             st.markdown(display_text)
