@@ -12,13 +12,17 @@ KEY: str = os.environ.get("SUPABASE_KEY", "")
 supabase: Optional[Client] = create_client(URL, KEY) if URL and KEY else None
 
 
-def get_exercises_by_category(category: str) -> Optional[List[Dict]]:
-    """Fetch exercises from DB based on Upper/Lower/Full Body."""
+def get_exercises_by_category(
+    category: str,
+    equipment: Optional[str] = None,
+) -> Optional[List[Dict]]:
+    """Fetch exercises by category, optionally filtered by equipment mode."""
     if not supabase:
         return None
-    table = supabase.table("exercises")
-    response = table.select("*").eq("category", category).execute()
-    return response.data
+    query = supabase.table("exercises").select("*").eq("category", category)
+    if equipment:
+        query = query.in_("equipment", [equipment, "both"])
+    return query.execute().data
 
 
 def get_user_stats(exercise_name: str) -> Optional[List[Dict]]:
@@ -44,10 +48,7 @@ def update_weight(exercise_name: str, new_weight: float) -> None:
 def save_message(user_id: Optional[str],
                  role: str,
                  content: str) -> None:
-    """
-    Persist a chat message to the `messages` table.
-    `user_id` may be None for anonymous users.
-    """
+    """Persist a chat message to the `messages` table."""
     if not supabase:
         return
     supabase.table("messages").insert(
@@ -58,19 +59,17 @@ def save_message(user_id: Optional[str],
 def get_recent_messages(user_id: Optional[str],
                         limit: int = 50) -> List[Dict]:
     """
-    Retrieve recent messages for a user ordered by created_at desc.
-    Returns an empty list if no supabase client is configured.
+    Retrieve recent messages ordered by created_at desc.
+    Uses .is_() for null user_id to avoid PostgREST filter-drop on None.
     """
     if not supabase:
         return []
-    resp = (
-        supabase.table("messages")
-        .select("*")
-        .eq("user_id", user_id)
-        .order("created_at", desc=True)
-        .limit(limit)
-        .execute()
-    )
+    query = supabase.table("messages").select("role, content, created_at")
+    if user_id is None:
+        query = query.is_("user_id", "null")
+    else:
+        query = query.eq("user_id", user_id)
+    resp = query.order("created_at", desc=True).limit(limit).execute()
     return resp.data or []
 
 

@@ -1,6 +1,5 @@
 # app.py
 import os
-import re
 import sys
 
 import pandas as pd
@@ -40,25 +39,38 @@ def onboarding_form():
 
 def main():
     """Main function handling onboarding check and UI."""
-    # Local imports after sys.path append to satisfy linters and avoid E402
     from agent import generate_reply, analyse_performance
-    from database import supabase, update_weight
+    from database import supabase, update_weight, save_message, get_recent_messages
+    from conversation import detect_equipment_mode
 
     st.set_page_config(page_title="AI Strength Coach", page_icon="🏋️")
 
-    # Defensive initialisation of session state keys
+    # ── Session state initialisation ─────────────────────────────────────────
+    if "equipment_mode" not in st.session_state:
+        st.session_state.equipment_mode = "gym"
+
     if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {"role": "assistant", "content": "How can I help you train today?"}
-        ]
+        # Restore cross-session memory from DB (newest-first → reverse to chrono)
+        persisted = get_recent_messages(user_id=None, limit=20)
+        if persisted:
+            st.session_state.messages = list(reversed(persisted))
+        else:
+            st.session_state.messages = [
+                {"role": "assistant",
+                 "content": "How can I help you train today?"}
+            ]
+
     if "active_workout" not in st.session_state:
         st.session_state.active_workout = []
     if "generating" not in st.session_state:
         st.session_state.generating = False
 
     if "onboarded" not in st.session_state:
-        data = supabase.table("user_progress").select("*").execute().data
-        st.session_state.onboarded = True if data else False
+        if supabase:
+            data = supabase.table("user_progress").select("*").execute().data
+            st.session_state.onboarded = True if data else False
+        else:
+            st.session_state.onboarded = False
 
     if not st.session_state.onboarded:
         onboarding_form()
@@ -66,13 +78,23 @@ def main():
 
     st.title("🏋️ AI Personal Trainer")
 
-    # --- SIDEBAR: Logging & Analytics ---
+    # ── SIDEBAR ───────────────────────────────────────────────────────────────
     with st.sidebar:
-        # Professional Reset Button to handle Context Drift
         if st.button("🗑️ Clear Chat History"):
             st.session_state.messages = []
             st.session_state.active_workout = []
             st.rerun()
+
+        # Equipment mode toggle
+        st.header("⚙️ Mode")
+        mode_choice = st.radio(
+            "Equipment",
+            options=["🏋️ Gym", "🏠 Home"],
+            index=0 if st.session_state.equipment_mode == "gym" else 1,
+            horizontal=True,
+        )
+        st.session_state.equipment_mode = "gym" if "Gym" in mode_choice else "home"
+        st.divider()
 
         st.header("📋 Log Your Session")
 
@@ -92,7 +114,6 @@ def main():
                     )
 
                     if st.button(f"Submit {ex}", key=f"btn_{ex}"):
-                        # Use the analyse_performance function from agent.py
                         new_w = analyse_performance(ex, reps, 10, weight)
                         update_weight(ex, new_w)
 
@@ -110,43 +131,48 @@ def main():
         st.divider()
         st.header("📈 Your Progress")
 
-        progress_data = supabase.table(
-            "user_progress").select("*").execute().data
+        if supabase:
+            progress_data = supabase.table(
+                "user_progress").select("*").execute().data
+            if progress_data:
+                df = pd.DataFrame(progress_data)
+                st.bar_chart(data=df, x="exercise_name", y="current_weight")
 
-        if progress_data:
-            df = pd.DataFrame(progress_data)
-            st.bar_chart(data=df, x="exercise_name", y="current_weight")
-
-    # --- MAIN: Chat Interface ---
+    # ── MAIN: Chat Interface ──────────────────────────────────────────────────
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # Chat input
     if prompt := st.chat_input("e.g. Give me a 45min upper body workout"):
-        # Reset active workout until we parse a new one
+        # Detect equipment preference from natural language before anything else
+        detected_mode = detect_equipment_mode(prompt)
+        if detected_mode:
+            st.session_state.equipment_mode = detected_mode
+
         st.session_state.active_workout = []
         st.session_state.messages.append({"role": "user", "content": prompt})
+        save_message(user_id=None, role="user", content=prompt)
+
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Prevent concurrent generations
         if st.session_state.get("generating", False):
             st.warning("Still generating the previous reply — please wait.")
             return
 
         st.session_state.generating = True
 
-        # Show a typing placeholder while the model generates a reply
         placeholder = st.empty()
         with placeholder.container():
             st.chat_message("assistant")
             st.markdown("_Coach is typing..._")
 
         try:
-            # Generate reply using the conversation-aware wrapper
-            full_response = generate_reply(
-                prompt, st.session_state.get("messages", []))
+            display_text, workout_dict = generate_reply(
+                prompt,
+                st.session_state.get("messages", []),
+                equipment_mode=st.session_state.equipment_mode,
+            )
         except Exception as exc:
             st.session_state.generating = False
             placeholder.empty()
@@ -156,40 +182,25 @@ def main():
             st.session_state.generating = False
             placeholder.empty()
 
-        # 1. STRIP the hidden technical tags so the user doesn't see them
-        clean_display = re.sub(r"<!--.*?-->", "", full_response).strip()
-        # Also remove raw EXERCISES text if AI forgot the comment tags
-        clean_display = re.sub(
-            r"EXERCISES:.*", "", clean_display, flags=re.IGNORECASE).strip()
-
-        # 2. SAVE and DISPLAY the clean version
         st.session_state.messages.append(
-            {"role": "assistant", "content": clean_display})
-        with st.chat_message("assistant"):
-            st.markdown(clean_display)
+            {"role": "assistant", "content": display_text})
+        save_message(user_id=None, role="assistant", content=display_text)
 
-        # Small regenerate control for the last assistant reply
+        with st.chat_message("assistant"):
+            st.markdown(display_text)
+
         regen_key = f"regen_{len(st.session_state.messages)}"
         if not st.session_state.get("generating", False) and st.button(
                 "Regenerate last reply", key=regen_key):
-            # Remove last assistant message and re-run generation
             st.session_state.messages = st.session_state.messages[:-1]
             st.rerun()
 
-        # 3. USE the technical response for extraction logic (robust pattern)
-        pattern = r"<!--\s*EXERCISES\s*:\s*(\[[^\]]*\])\s*-->"
-        match = re.search(pattern, full_response, re.IGNORECASE)
-
-        if match:
-            names_str = match.group(1).strip().lstrip("[").rstrip("]")
-            names_list = [
-                n.strip().strip("'\"") for n in names_str.split(
-                    ",") if n.strip()]
-
-            if names_list:
-                st.session_state.active_workout = names_list
-                # Immediately rerun so the sidebar shows the new logging UI
-                st.rerun()
+        # Populate sidebar logger from structured JSON workout
+        if workout_dict and workout_dict.get("exercises"):
+            st.session_state.active_workout = [
+                ex["name"] for ex in workout_dict["exercises"]
+            ]
+            st.rerun()
     # End of main()
 
 

@@ -2,7 +2,5 @@ streamlit
 groq
 supabase
 python-dotenv
-google-genai
-postgrest
 httpx
 pandas
