@@ -51,6 +51,12 @@ def generate_workout_plan(
     full  = get_exercises_by_category("Full Body", equipment=equipment_mode) or []
     all_ex = upper + lower + core + full
 
+    if not all_ex:
+        raise RuntimeError(
+            "No exercises found in the database for this equipment mode. "
+            "Please run schema.sql in your Supabase SQL Editor to load the exercise library."
+        )
+
     user_stats = (
         supabase.table("user_progress").select("*").execute().data
         if supabase else []
